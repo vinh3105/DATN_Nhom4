@@ -2,45 +2,49 @@
 
 public class EnemyAI : MonoBehaviour
 {
-    [SerializeField] private Transform player; // Người chơi
-    [SerializeField] private float speed = 2f; // Tốc độ di chuyển
-    [SerializeField] private float detectionRange = 5f; // Phạm vi phát hiện
+	[SerializeField] private Transform targetPlayer; // Tham chiếu đến người chơi
+	[SerializeField] private float enemyMoveSpeed = 2f; // Tốc độ di chuyển của quái
+	[SerializeField] private float detectionRadius = 5f; // Phạm vi phát hiện người chơi
 
-    private bool isChasing = false; // Kiểm tra có đang đuổi không
+	private bool isChasingPlayer = false; // Trạng thái có đang đuổi người chơi hay không
 
-    void Update()
-    {
-        // Kiểm tra khoảng cách đến người chơi
-        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-        if (distanceToPlayer < detectionRange)
-        {
-            isChasing = true; // Bắt đầu đuổi nếu người chơi nằm trong phạm vi
-        }
-        else
-        {
-            isChasing = false; // Dừng đuổi nếu ra ngoài phạm vi
-        }
+	void Update()
+	{
+		// Tính khoảng cách đến người chơi
+		float distanceToPlayer = Vector2.Distance(transform.position, targetPlayer.position);
 
-        if (isChasing)
-        {
-            // Di chuyển quái về phía người chơi
-            transform.position = Vector2.MoveTowards(transform.position, player.position, speed * Time.deltaTime);
-        }
-    }
+		// Kiểm tra nếu trong phạm vi thì bắt đầu đuổi
+		if (distanceToPlayer < detectionRadius)
+		{
+			isChasingPlayer = true;
+		}
+		else
+		{
+			isChasingPlayer = false;
+		}
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            isChasing = true; // Khi phát hiện người chơi, bắt đầu đuổi
-        }
-    }
+		// Nếu đang đuổi, di chuyển về phía người chơi
+		if (isChasingPlayer)
+		{
+			transform.position = Vector2.MoveTowards(transform.position, targetPlayer.position, enemyMoveSpeed * Time.deltaTime);
+		}
+	}
 
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            isChasing = false; // Khi người chơi rời khỏi vùng phát hiện, dừng đuổi
-        }
-    }
+	// Khi người chơi bước vào vùng trigger (nếu có gắn collider dạng trigger)
+	private void OnTriggerEnter2D(Collider2D other)
+	{
+		if (other.CompareTag("Player"))
+		{
+			isChasingPlayer = true;
+		}
+	}
+
+	// Khi người chơi bước ra khỏi vùng trigger
+	private void OnTriggerExit2D(Collider2D other)
+	{
+		if (other.CompareTag("Player"))
+		{
+			isChasingPlayer = false;
+		}
+	}
 }
