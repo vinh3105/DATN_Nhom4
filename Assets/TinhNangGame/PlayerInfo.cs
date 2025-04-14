@@ -41,8 +41,7 @@ public class PlayerInfo : MonoBehaviour
         {
             currentHealth = 0; // Đảm bảo không âm
             isInvincible = true; // Thiết lập trạng thái bất tử
-            yield return new WaitForSeconds(3f); // Đợi 3 giây
-            GameManager.Instance.GameOver(); // Kết thúc trò chơi nếu sức khỏe bằng 0
+            Debug.Log("Player đã chết");
         }
         else
         {
