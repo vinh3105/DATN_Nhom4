@@ -5,7 +5,7 @@ using UnityEngine;
 public class EnemyAttack : MonoBehaviour
 {
     [Header("Bắn")]
-    [SerializeField ] private Transform firePoint;
+    [SerializeField] private Transform firePoint;
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private float bulletSpeed = 10f;
     [SerializeField] private float fireRate = 1f;
@@ -60,11 +60,11 @@ public class EnemyAttack : MonoBehaviour
 
         if (player.position.x < transform.position.x)
         {
-            scale.x = Mathf.Abs(scale.x); // Quay sang trái
+            scale.x = -Mathf.Abs(scale.x); // Quay sang trái
         }
         else
         {
-            scale.x = -Mathf.Abs(scale.x); // Quay sang phải
+            scale.x = Mathf.Abs(scale.x); // Quay sang phải
         }
 
         transform.localScale = scale;
