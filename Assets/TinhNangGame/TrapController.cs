@@ -3,18 +3,22 @@ using UnityEngine;
 
 public class TrapController : MonoBehaviour
 {
-    [SerializeField] private int health = 3; // Máu của bẫy
-    [SerializeField] private float fireRate = 1.5f; // Tốc độ bắn
-    [SerializeField] private float detectionRadius = 5f; // Phạm vi phát hiện người chơi
-    [SerializeField] private Transform firePoint; // Vị trí bắn đạn
-    [SerializeField] private GameObject enemyBulletPrefab; // Prefab đạn
+    [SerializeField] private float detectionRange = 5f;           // Phạm vi phát hiện người chơi
+    [SerializeField] private Transform firePoint;                 // Vị trí bắn đạn
+    [SerializeField] private GameObject enemyBulletPrefab;       // Prefab đạn
+    [SerializeField] private int health = 3;                      // Máu của bẫy
+    [SerializeField] private float shootInterval = 1f;           // Khoảng thời gian giữa các lần bắn
 
-    private Transform player; // Tham chiếu đến người chơi
-    private Coroutine shootingCoroutine = null; // Để điều khiển coroutine
+    private Transform player;                                    // Tham chiếu tới người chơi
+    private Coroutine shootCoroutine;
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        if (player == null)
+        {
+            Debug.LogWarning("Không tìm thấy Player!");
+        }
     }
 
     void Update()
@@ -23,17 +27,17 @@ public class TrapController : MonoBehaviour
 
         float distance = Vector2.Distance(transform.position, player.position);
 
-        if (distance < detectionRadius)
+        if (distance < detectionRange)
         {
-            if (shootingCoroutine == null)
-                shootingCoroutine = StartCoroutine(ShootRoutine());
+            if (shootCoroutine == null)
+                shootCoroutine = StartCoroutine(ShootRoutine());
         }
         else
         {
-            if (shootingCoroutine != null)
+            if (shootCoroutine != null)
             {
-                StopCoroutine(shootingCoroutine);
-                shootingCoroutine = null;
+                StopCoroutine(shootCoroutine);
+                shootCoroutine = null;
             }
         }
     }
@@ -43,25 +47,38 @@ public class TrapController : MonoBehaviour
         while (true)
         {
             Shoot();
-            yield return new WaitForSeconds(fireRate);
+            yield return new WaitForSeconds(shootInterval);
         }
     }
 
     void Shoot()
     {
-        if (enemyBulletPrefab != null && firePoint != null)
+        if (enemyBulletPrefab != null && firePoint != null && player != null)
         {
-            Instantiate(enemyBulletPrefab, firePoint.position, firePoint.rotation);
+            GameObject bullet = Instantiate(enemyBulletPrefab, firePoint.position, Quaternion.identity);
+            EnemyBullet bulletScript = bullet.GetComponent<EnemyBullet>();
+
+            if (bulletScript != null)
+            {
+                Vector2 direction = (player.position - firePoint.position).normalized;
+                bulletScript.SetDirection(direction);
+            }
         }
     }
 
     public void TakeDamage(int damage)
     {
         health -= damage;
-
         if (health <= 0)
         {
-            Destroy(gameObject);
+            Destroy(gameObject); // Phá hủy bẫy khi hết máu
         }
+    }
+
+    // Vẽ vùng detection trong Scene view
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
     }
 }

@@ -28,6 +28,7 @@ public class PlayerBullet : MonoBehaviour
     {
         if (collision.CompareTag("Enemy"))
         {
+            collision.GetComponent<EnemyHealth>().TakeDamage(damage);
             collision.GetComponent<EnemyController>().TakeDamage(damage);
             collision.GetComponent<TrapController>().TakeDamage(damage);
             Destroy(gameObject);
